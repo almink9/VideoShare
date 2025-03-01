@@ -6,7 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using VideoShare.Core.Entities;
+using VideoShare.Core.IRepo;
 using VideoShare.DataAccess.Data;
+using VideoShare.DataAccess.Repo;
 
 namespace VideoShare.Extensions
 {
@@ -18,6 +20,10 @@ namespace VideoShare.Extensions
       {
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
       });
+
+      builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+      builder.Services.AddSession();
+
       return builder;
     }
 
