@@ -2,7 +2,7 @@
 
 namespace VideoShare.ViewModels.Admin
 {
-  public class CAtegoryAddEdit_vm
+  public class CategoryAddEdit_vm
   {
     public int Id { get; set; }
     [Required]

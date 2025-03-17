@@ -21,7 +21,7 @@ namespace VideoShare.Controllers
     public async Task<IActionResult> GetCategories()
     {
       var categories = await UnitOfWork.CategoryRepo.GetAllAsync();
-      var toReturn = categories.Select(x => new CAtegoryAddEdit_vm
+      var toReturn = categories.Select(x => new CategoryAddEdit_vm
       {
         Id = x.Id,
         Name = x.Name
@@ -30,7 +30,7 @@ namespace VideoShare.Controllers
       return Json(new ApiResponse(200, result: toReturn));
     }
     [HttpPost]
-    public async Task<IActionResult> AddEditCategory(CAtegoryAddEdit_vm model)
+    public async Task<IActionResult> AddEditCategory(CategoryAddEdit_vm model)
     {
       if (ModelState.IsValid)
       {

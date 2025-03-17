@@ -9,6 +9,8 @@ using VideoShare.Core.Entities;
 using VideoShare.Core.IRepo;
 using VideoShare.DataAccess.Data;
 using VideoShare.DataAccess.Repo;
+using VideoShare.Services;
+using VideoShare.Services.IServices;
 
 namespace VideoShare.Extensions
 {
@@ -22,6 +24,7 @@ namespace VideoShare.Extensions
       });
 
       builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+      builder.Services.AddScoped<IPhotoService, PhotoService>();
       builder.Services.AddSession();
 
       return builder;
