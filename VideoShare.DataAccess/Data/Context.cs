@@ -20,6 +20,7 @@ namespace VideoShare.DataAccess.Data
     public DbSet<Category> Category { get; set; }
     public DbSet<Channel> Channel { get; set; }
     public DbSet<Video> Video { get; set; }
+    public DbSet<VideoView> VideoView { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -32,6 +33,7 @@ namespace VideoShare.DataAccess.Data
       builder.ApplyConfiguration(new CommentConfig());
       builder.ApplyConfiguration(new SubscribeConfig());
       builder.ApplyConfiguration(new LikeDislikeConfig());
+      builder.ApplyConfiguration(new VideoViewConfig());
     }
   }
 }

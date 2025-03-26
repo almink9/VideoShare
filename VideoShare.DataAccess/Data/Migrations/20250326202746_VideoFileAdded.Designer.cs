@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VideoShare.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using VideoShare.DataAccess.Data;
 namespace VideoShare.DataAccess.Data.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20250326202746_VideoFileAdded")]
+    partial class VideoFileAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -344,6 +347,14 @@ namespace VideoShare.DataAccess.Data.Migrations
                     b.Property<int>("ChannelId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Contents")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -595,7 +606,7 @@ namespace VideoShare.DataAccess.Data.Migrations
             modelBuilder.Entity("VideoShare.Core.Entities.VideoView", b =>
                 {
                     b.HasOne("VideoShare.Core.Entities.AppUser", "AppUser")
-                        .WithMany("Histories")
+                        .WithMany()
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -603,7 +614,7 @@ namespace VideoShare.DataAccess.Data.Migrations
                     b.HasOne("VideoShare.Core.Entities.Video", "Video")
                         .WithMany("Viewers")
                         .HasForeignKey("VideoId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AppUser");
@@ -616,8 +627,6 @@ namespace VideoShare.DataAccess.Data.Migrations
                     b.Navigation("Channel");
 
                     b.Navigation("Comments");
-
-                    b.Navigation("Histories");
 
                     b.Navigation("LikeDislikes");
 

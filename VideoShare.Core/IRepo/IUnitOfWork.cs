@@ -11,6 +11,8 @@ namespace VideoShare.Core.IRepo
     IChannelRepo ChannelRepo { get; }
     ICategoryRepo CategoryRepo { get; }
     IVideoRepo VideoRepo { get; }
+    IVideoFileRepo VideoFileRepo { get; }
+    IVideoViewRepo VideoViewRepo { get; }
 
     Task<bool> CompleteAsync();
   }

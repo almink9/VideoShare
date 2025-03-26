@@ -7,7 +7,7 @@
     @if (User.IsInRole(SD.UserRole))
     {
       <li class="nav-item">
-        <a class="nav-link text-white @Html.IsActive("Channel", "Index")" asp-controller="Channel" asp-action="Index">My Channel</a>
+        <a class="nav-link text-white @Html.IsActive("Channel", "Index")" asp-controller="Channel" asp-action="Index">Channel</a>
       </li>
     }
     <li class="nav-item">

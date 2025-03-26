@@ -2,16 +2,19 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using VideoShare.Core.DTOs;
 using VideoShare.Core.Entities;
+using VideoShare.Core.Pagination;
 using VideoShare.Extensions;
 using VideoShare.Services.IServices;
 using VideoShare.Utility;
+using VideoShare.ViewModels;
 using VideoShare.ViewModels.Video;
 
 namespace VideoShare.Controllers
@@ -25,6 +28,24 @@ namespace VideoShare.Controllers
     {
       _photoService = photoService;
     }
+
+    public async Task<IActionResult> Watch(int id)
+    {
+      var toReturn = await GetVideoWatch_vmWithProjections(id);
+
+      if (toReturn != null)
+      {
+        var userIpAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+        await UnitOfWork.VideoViewRepo.HandleVideoViewAsync(User.GetUserId(), id, userIpAddress);
+        await UnitOfWork.CompleteAsync();
+
+        return View(toReturn);
+      }
+
+      TempData["notification"] = "false;Not Found;Requested video was not found";
+      return RedirectToAction("Index", "Home");
+    }
+
     public async Task<IActionResult> CreateEditVideo(int id)
     {
       if (!await UnitOfWork.ChannelRepo.AnyAsync(x => x.AppUserId == User.GetUserId()))
@@ -132,10 +153,14 @@ namespace VideoShare.Controllers
             {
               Title = model.Title,
               Description = model.Description,
-              ContentType = model.VideoUpload.ContentType,
-              Contents = GetContentsAsync(model.VideoUpload).GetAwaiter().GetResult(),
+              VideoFile = new VideoFile
+              {
+                ContentType = model.VideoUpload.ContentType,
+                Contents = GetContentsAsync(model.VideoUpload).GetAwaiter().GetResult(),
+                Extension = SD.GetFileExtension(model.VideoUpload.ContentType)
+              },
               CategoryId = model.CategoryId,
-              ChannelId =  UnitOfWork.ChannelRepo.GetChannelIdByUserId(User.GetUserId()).GetAwaiter().GetResult(),
+              ChannelId = UnitOfWork.ChannelRepo.GetChannelIdByUserId(User.GetUserId()).GetAwaiter().GetResult(),
               ThumnailUrl = _photoService.UploadPhotoLocally(model.ImageUpload)
             };
 
@@ -177,6 +202,27 @@ namespace VideoShare.Controllers
 
       return View(model);
     }
+
+    public async Task<IActionResult> GetVideoFile(int videoId)
+    {
+      var fetchedVideoFile = await UnitOfWork.VideoFileRepo.GetFirstOrDefaultAsync(x => x.VideoId == videoId);
+      if (fetchedVideoFile != null)
+      {
+        return File(fetchedVideoFile.Contents, fetchedVideoFile.ContentType);
+      }
+
+      TempData["notification"] = "false;Not Found;Requested video was not found";
+      return RedirectToAction("Index", "Home");
+    }
+
+    #region API endpoints
+    //[HttpGet]
+    //public async Task<IActionResult> GetVideosForChannelGrid(BaseParameters parameters) 
+    //{
+    //  var userChannelId = await UnitOfWork.ChannelRepo.GetChannelIdByUserId(User.GetUserId());
+    //  var videosForGrid = await UnitOfWork.VideoRepo.GetVi
+    //}
+    #endregion
 
     #region Private Methods
     public async Task<IEnumerable<SelectListItem>> GetCategoryDropdownAsync()
@@ -222,6 +268,26 @@ namespace VideoShare.Controllers
       await file.CopyToAsync(memoryStream);
       contents = memoryStream.ToArray();
       return contents;
+    }
+
+    private async Task<VideoWatch_vm> GetVideoWatch_vmWithProjections(int id)
+    {
+      int userId = User.GetUserId();
+      var toReturn = await Context.Video
+        .Where(x => x.Id == id)
+        .Select(x => new VideoWatch_vm
+        {
+          Id = x.Id,
+          Title = x.Title,
+          Description = x.Description,
+          ChannelId = x.ChannelId,
+          ChannelName = x.Channel.Name,
+          CreatedAt = x.CreatedAt,
+          ViewersCount = x.Viewers.Count
+        })
+        .FirstOrDefaultAsync();
+
+      return toReturn;
     }
     #endregion
   }

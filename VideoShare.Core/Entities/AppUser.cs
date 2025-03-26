@@ -19,5 +19,6 @@ namespace VideoShare.Core.Entities
     public ICollection<Comment> Comments { get; set; }
     public ICollection<Subscribe> Subscriptions { get; set; }
     public ICollection<LikeDislike> LikeDislikes { get; set; }
+    public ICollection<VideoView> Histories { get; set; }
   }
 }
